@@ -6,7 +6,6 @@ from qgis.core import (QgsVectorLayer, QgsVectorFileWriter,
 from csv import QUOTE_NONNUMERIC
 import urllib.request, urllib.error, urllib.parse
 
-
 # setting working directory to project home
 os.chdir(QgsProject.instance().readPath("./"))
 project_home = os.getcwd()
@@ -22,11 +21,13 @@ get_vars = ["NAME", "P001001"]  # P001001 = population
 predicates["get"] = ",".join(get_vars)  # get vars
 predicates["for"] = "county:*"
 predicates["in"] = "state:42"  # state code for Pennsylvania
+#^other geography levels? 
+
 
 # execute request
 r = requests.get(base_url, params=predicates)
 print(r.json())
-# col_names = ["name", "total_pop", "state", "county"] # renaming columns
+# renaming columns
 col_names = r.json()[0:1][-1]
 
 df = pd.DataFrame(columns=col_names, data=r.json()[1:])
@@ -41,6 +42,7 @@ print(df.columns[-1])
 
 if df.columns[-1] == "state":
     csv_join_field = "state"
+    shp_join_field = "STATEFP10"
 elif df.columns[-1] == "county":
     df["GEOID"] = df["state"] + df["county"]
     csv_join_field = "GEOID"
@@ -76,11 +78,12 @@ print('{0}{1} created.'.format(outputDir, os.path.basename(theURL)))
 
 
 #add shapefile to QGIS project
+#let's generalize this more, and turn into a function
 zip_path = '/vsizip/' + project_home + os.path.basename(theURL)
 shp = QgsVectorLayer(zip_path, 'tl_2010_42_county10', 'ogr')
 QgsProject.instance().addMapLayer(shp)
-shp_join_field='GEOID10'
 
+shp_join_field='GEOID10'
 
 #make a function to join csv to shapefile
 
@@ -94,3 +97,4 @@ def join (shp, csv, shp_join_field, csv_join_field):
     shp.addJoin(joinObject)
 
 join(shp, csv, shp_join_field, csv_join_field)
+
