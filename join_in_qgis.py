@@ -72,14 +72,31 @@ def fetchZip(url, outputDir):
         outf.write(binContents)
 
 outputDir = project_home
-theURL = 'https://www2.census.gov/geo/tiger/TIGER2010/COUNTY/2010/tl_2010_42_county10.zip'
-fetchZip(theURL, outputDir)
-print('{0}{1} created.'.format(outputDir, os.path.basename(theURL)))
 
 
+#Get Geometry  (Function not completely finished--mostly unsure of local/global variables and what all needs to be in the function since theres a get zip and build url function)
+def get_geo(tiger, geo_type, year, state):
+
+    url_prefix="https://www2.census.gov/geo/tiger/" #Not User Input
+    url_tiger= f"{tiger}"           # "TIGER####"
+    url_geo_type = f"{geo_type}"    # "COUNTY", "STATE", etc. 
+    url_year = f"{year}"            # "####"
+    url_state = f"{state}"          #2-dig state code
+    url_geo_lower = url_geo_type.lower() #used in url_suffix (file name)
+    url_suffix="tl_{0}_{1}_{2}.zip".format(url_year,url_state,url_geo_lower)
+    
+    #not sure if this needs to be global for future referance
+    geo_url = "{0}{1}/{3}/{4}/{5}".format(url_prefix, url_tiger, url_geo_type, url_year, url_suffix)
+    #STATE ex: https://www2.census.gov/geo/tiger/TIGER2010/STATE/2010/tl_2010_01_state10.zip
+    #theURL = 'https://www2.census.gov/geo/tiger/TIGER2010/COUNTY/2010/tl_2010_42_county10.zip' #original grab
+   
+    fetchZip(geo_url, outputDir) #change to geo_url once user input final
+    print('{0}{1} created.'.format(outputDir, os.path.basename(geo_url)))
+
+    print("FOR GIT HUB TO RECOGNIZE AS UPDATED TEXT DELTE LATER")
 #add shapefile to QGIS project
 #let's generalize this more, and turn into a function
-zip_path = '/vsizip/' + project_home + os.path.basename(theURL)
+zip_path = '/vsizip/' + project_home + os.path.basename(geo_url)
 shp = QgsVectorLayer(zip_path, 'tl_2010_42_county10', 'ogr')
 QgsProject.instance().addMapLayer(shp)
 
