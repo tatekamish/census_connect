@@ -17,33 +17,27 @@ def get_table(get_vars, pred_for, pred_in, year):
     dataset = "dec/sf1"
     base_url = "/".join([HOST, year, dataset])
     predicates = {}
-    for i, x in enumerate(get_vars):
-        if i != 0:
-            x.astype(int)
-        else:
-            pass
     predicates["get"] = ",".join(get_vars)  # get vars is a list of strings, ex. ["NAME", "P001001"]
     predicates["for"] = f"{pred_for}:*" #county:* or tract:*
     predicates["in"] = f"state:{pred_in}" #state:42 or state:*
     r = requests.get(base_url, params=predicates)
-    col_names = r.json()[0:1][-1]
-    df = pd.DataFrame(columns=col_names, data=r.json()[1:])
-    if df.columns[-1] == "state":
-        csv_join_field = "state"
-    elif df.columns[-1] == "county":
-        df["GEOID"] = df["state"] + df["county"]
-        csv_join_field = "GEOID"
-    elif df.columns[-1] == "tract":
-        df["GEOID"] = df["state"] + df["county"] + df["tract"]
-        csv_join_field = "GEOID"
-    else:
-        pass
+    col_names = r.json()[0:1][0]
+    df = pd.DataFrame(columns=col_names, data=r.json()[1:])   
+    geocols = list(df.columns)[len(get_vars):]
+    df["GEOID"] = df[geocols].apply("".join, axis=1)    
     df.to_csv("table.csv", quoting = QUOTE_NONNUMERIC, index=False)
+    out_file = open("table.csvt", "w")
+    csvt_text = "Integer," * len(get_vars) + "String," * len(geocols)
+    out_file.write(csvt_text)
+    out_file.close()
     return df
-    return csv_join_field 
 
-get_table(["NAME", "P001001"], "county", 42)
+df = get_table(["NAME", "P001001"], "county", "42", "2010")
 
+
+#create csvt file: 
+    #`"Integer",` * [get_vars].len() 
+    
 #df["P001001"] = df["P001001"].astype(int)
 #add a new field that is a concatenation of state + county ID (GEOID); this will be the join field
 #or access columns by index df[number of variables requested:]
@@ -81,14 +75,14 @@ shp_join_field='GEOID10'
 # 
 
 #make a function to join csv to shapefile
-def join_to_geog (shp, csv, shp_join_field, csv_join_field):   
+def join_to_geog (shp, csv, shp_join_field):   
     joinObject=QgsVectorLayerJoinInfo()
-    joinObject.setJoinFieldName(csv_join_field)
+    joinObject.setJoinFieldName("GEOID")
     joinObject.setTargetFieldName(shp_join_field)
     joinObject.setJoinLayerId(csv.id())
     joinObject.setUsingMemoryCache(True)
     joinObject.setJoinLayer(csv)
     shp.addJoin(joinObject)
 
-join_to_geog(shp, csv, shp_join_field, csv_join_field)
+join_to_geog(shp, csv, shp_join_field)
 
