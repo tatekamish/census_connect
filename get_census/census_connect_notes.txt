@@ -1,0 +1,12 @@
+
+
+TABLE INPUTS
+
+year - dropdown
+geo extent - dropdown
+--output: fips code,
+geo level - dropdown
+variables - textbox
+--output needs to be list, check for "NAME, if not, add "NAME"
+
+
