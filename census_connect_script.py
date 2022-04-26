@@ -91,7 +91,6 @@ shp = QgsVectorLayer(zip_path, url_suffix[:-4], 'ogr')
 QgsProject.instance().addMapLayer(shp)
 
 
-#make a function to join csv to shapefile
 def join_to_geog (shp, csv, shp_join_field):  
     '''
     Joins the CSV to the geometry and loads the layers to QGIS project.
