@@ -28,9 +28,9 @@ To get started:
 * Select from multiple years in on call
 
 ## Authors
-**Steven Francisco** | *[Github](https://github.com/stfran22)*
-**Tate Kamish** | *[Github](https://github.com/tatekamish)*
-**Casey Smith** | *[Github](https://github.com/caseysmithpgh)*
+**Steven Francisco** | *[Github](https://github.com/stfran22)* <br>
+**Tate Kamish** | *[Github](https://github.com/tatekamish)* <br>
+**Casey Smith** | *[Github](https://github.com/caseysmithpgh)* <br>
 ## Version History
 **v 0.1.9**
 * Decennial Census, Summary File 1
